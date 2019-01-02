@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+
+require 'net/http'
+require 'uri'
+require 'json'
+require 'base64'
+
+def encode_array(arr)
+  Base64.strict_encode64(arr.pack('G*'))
+end
+
+uri = URI.parse("http://localhost:9200/products/product")
+
+NUM_PRODUCTS = 100
+colours = %w(Red Blue Yellow Black Brown, Grey White Black)
+items = %w(Shirt Shorts Jacket Shoes Socks Hat)
+
+# Create the HTTP objects
+http = Net::HTTP.new(uri.host, uri.port)
+request = Net::HTTP::Post.new(uri.request_uri)
+
+request['Content-Type'] = 'application/json'
+
+1.upto(NUM_PRODUCTS) do |i|
+  request.body = {
+    embeddedVector: encode_array(Array.new(100) { rand(1.0...30000.0) }),
+    product_id: i,
+    product_url: "site.com/#{i}",
+    title: "#{colours.sample} #{items.sample}",
+    gross_price: rand(100)
+  }.to_json
+
+  http.request(request)
+end
+
+puts 'Done.'
+
