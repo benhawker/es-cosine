@@ -1,14 +1,20 @@
-1. Build 
+# Elasticsearch Vector Scoring
+
+A spike to demonstrate the use of the [Fast Cosine ES plugin from StaySense](https://github.com/StaySense/fast-cosine-similarity) on top of Elasticsearch 6.4.1. 
+
+===================
+
+####  1. Build the container
 ```
 docker build -t es-knn .
 ```
 
-2. Run
+####  2. Run the container
 ```
 docker run -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" es-knn
 ```
 
-3. Create index, apply mapping and settings
+####  3. Create index, apply mapping and settings
 ```
 curl -H 'Content-Type: application/json' -X PUT "http://localhost:9200/products" -d '
 {
@@ -83,7 +89,7 @@ http://localhost:9200/products/_settings
 ```
 
 
-4. Add products to the index
+#### 4. Add products to the index
 
 Use the 'seeding' script
 ```
@@ -98,7 +104,7 @@ $ bin/seed
 ```
 curl -H 'Content-Type: application/json' -X POST 'http://localhost:9200/products/product' -d '
 {
-	"embeddedVector": "QNdxmRRuthhAyKm7bNW+okC/b6ErRxNeQMkVfl1L+edAytg+Xy4UekDJThkCWB33QIvCavUhc1BA3DO7m1HKOUDCYABjTPXGQNbxSnz6OdNAnL59l6QCP0DSeDY6ZOY8QMjSsHZw54hA24dDthdhH0DAsj5qOy/QQMdsC9vJbiJAyS55LjB5zUDZNqJhLjJEQNV9iRoTCBFA2E87SCpGiEDa3Kb5pdYMQJjOGUeMQmNAx/qBQ2fvVUDLX+EAIZHHQLDdvMCEwb9AvrO28HbudkDcdrRSbSG2QNkykLOxRxtA1CEEod/Q5EDS+JCvf5jLQJSZCPtNNYRA2CJ6PuO/S0DXxDLSaOSwQNXSoGf1LKBAwzrARzHWjkDNnLWo59MhQIzMzAVRx/xAtlasoaIv30DCcwYuscdrQHyFmW42GxVAuovNyYVxwUCgw+sQLDeyQMbvQPb7siJAn7I04SEFtkDaqyJyxfBaQNQstDznOZBA0dtS3q45D0DPL64FlVLrQNGUpecOi+5AxBeoDFZfhkC2nX94FV1iQNmNQT+96h1A2E4nSKoM10DXOb8b/T4WQNP/mp8HmexAyH8CEFraEEDP64uxZaekQLryyB7xVwJAo3+b0GxAcUC43Sl0cfQFQJg2zt51k15A08osTsCKOEC5wku9oCijQNAAyfuDZLtA0ReZzWHjvkDUZBtdoveyQJqDORZ0eLxAwyIEI/8lc0DOaQuCRlBoQNoaCh+ScKlA17PBGTeEAUDVo9h+pecmQMrVUsNyc8BA2wh1hj0ieEClxJNA++o7QNFvVxPApZlAtpTe4UJnJ0DRSCfQOwTNQK8v9yIFRgVAxRjAqHkEK0DZ9e+ICnZpQM59j5bxQRlAzR9OeArNHUDTCQwPy1CLQLtEeTF8rCdAtmrlkQWh/UC9S9xqJcYRQM4YvKjortpAyErUgyJVD0DW7ktjSS20QL8waRYLSihAy0O9Z2KlrkDWSOq2cko/QNdPZqY+8lBAsZmMKozbtEDUy39xliNqQNYI+TNnKMtAnka0FNpf60DYOQwmwXx6QNkqY+SwSE4=",
+  "embeddedVector": "QNdxmRRuthhAyKm7bNW+okC/b6ErRxNeQMkVfl1L+edAytg+Xy4UekDJThkCWB33QIvCavUhc1BA3DO7m1HKOUDCYABjTPXGQNbxSnz6OdNAnL59l6QCP0DSeDY6ZOY8QMjSsHZw54hA24dDthdhH0DAsj5qOy/QQMdsC9vJbiJAyS55LjB5zUDZNqJhLjJEQNV9iRoTCBFA2E87SCpGiEDa3Kb5pdYMQJjOGUeMQmNAx/qBQ2fvVUDLX+EAIZHHQLDdvMCEwb9AvrO28HbudkDcdrRSbSG2QNkykLOxRxtA1CEEod/Q5EDS+JCvf5jLQJSZCPtNNYRA2CJ6PuO/S0DXxDLSaOSwQNXSoGf1LKBAwzrARzHWjkDNnLWo59MhQIzMzAVRx/xAtlasoaIv30DCcwYuscdrQHyFmW42GxVAuovNyYVxwUCgw+sQLDeyQMbvQPb7siJAn7I04SEFtkDaqyJyxfBaQNQstDznOZBA0dtS3q45D0DPL64FlVLrQNGUpecOi+5AxBeoDFZfhkC2nX94FV1iQNmNQT+96h1A2E4nSKoM10DXOb8b/T4WQNP/mp8HmexAyH8CEFraEEDP64uxZaekQLryyB7xVwJAo3+b0GxAcUC43Sl0cfQFQJg2zt51k15A08osTsCKOEC5wku9oCijQNAAyfuDZLtA0ReZzWHjvkDUZBtdoveyQJqDORZ0eLxAwyIEI/8lc0DOaQuCRlBoQNoaCh+ScKlA17PBGTeEAUDVo9h+pecmQMrVUsNyc8BA2wh1hj0ieEClxJNA++o7QNFvVxPApZlAtpTe4UJnJ0DRSCfQOwTNQK8v9yIFRgVAxRjAqHkEK0DZ9e+ICnZpQM59j5bxQRlAzR9OeArNHUDTCQwPy1CLQLtEeTF8rCdAtmrlkQWh/UC9S9xqJcYRQM4YvKjortpAyErUgyJVD0DW7ktjSS20QL8waRYLSihAy0O9Z2KlrkDWSOq2cko/QNdPZqY+8lBAsZmMKozbtEDUy39xliNqQNYI+TNnKMtAnka0FNpf60DYOQwmwXx6QNkqY+SwSE4=",
   "product_id": 1,
   "product_url": "site.com/1",
   "title": "Black Shoes",
@@ -122,7 +128,7 @@ Get a count of documents in the products index:
 http://localhost:9200/products/_count
 ```
 
-5. Query the index using the cosine plugin.
+####  5. Query the index using the cosine plugin.
 
 This example nests a [bool query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-bool-query.html) within the a [function_score query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#query-dsl-function-score-query).
 
@@ -172,8 +178,9 @@ curl -H 'Content-Type: application/json' -X POST 'http://localhost:9200/products
 '
 ```
 
+===================
 
-Other useful commands:
+#### Other useful commands:
 
 - Delete all documents (retaining mapping/settings)
 ```
